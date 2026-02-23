@@ -2,7 +2,8 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, TextInput, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { Marker } from 'react-native-maps';
-import { useState } from 'react';
+import * as Location from 'expo-location';
+import { useState, useEffect } from 'react';
 
 /*
 Lähteet:
@@ -16,8 +17,24 @@ export default function App() {
   const [input, setInput] = useState("");
   const [title, setTitle] = useState("Rautatieasema");
   const [loading, setLoading] = useState(false);
-  const [lat, setLat] = useState(60.17189348213929)
-  const [lon, setLon] = useState(24.941338478438446)
+  const [lat, setLat] = useState(60.17189348213929);
+  const [lon, setLon] = useState(24.941338478438446);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Ei lupaa hakea sijaintia.')
+        return;
+      }
+      let location = await Location.getCurrentPositionAsync({})
+      console.log(location);
+      console.log(location.coords.latitude);
+      console.log(location.coords.longitude);
+      setLat(location.coords.latitude);
+      setLon(location.coords.longitude);
+    })();
+  }, [])
 
   const initialRegion = {
     latitude: lat,
